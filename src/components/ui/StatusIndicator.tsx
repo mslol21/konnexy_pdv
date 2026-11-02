@@ -1,9 +1,13 @@
 import React from 'react';
 import { Wifi, WifiOff, RefreshCw, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useUiStore } from '../../store/useUiStore';
+import { useAuthStore } from '../../store/useAuthStore';
+import { DEMO_TENANT_ID } from '../../lib/db/seed';
 
 export const StatusIndicator: React.FC = () => {
-  const { isOnline, isSyncing, pendingSyncCount } = useUiStore();
+  const { isOnline, isSyncing, pendingSyncCount, lastSyncAt } = useUiStore();
+  const currentTenant = useAuthStore(s => s.currentTenant);
+  if (currentTenant?.id === DEMO_TENANT_ID) return <div className="rounded-full border border-sky-500/40 bg-sky-500/10 px-3 py-1 text-xs font-semibold text-sky-300" title="Demonstração local: não sincroniza dados com o servidor">DEMO LOCAL</div>;
 
   if (!isOnline) {
     return (
@@ -39,6 +43,8 @@ export const StatusIndicator: React.FC = () => {
       </div>
     );
   }
+
+  if (!lastSyncAt) return <div className="rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-300">Sem sincronização remota</div>;
 
   return (
     <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full text-xs font-semibold">
