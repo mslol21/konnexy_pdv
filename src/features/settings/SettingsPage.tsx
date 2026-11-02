@@ -288,7 +288,7 @@ export const SettingsPage: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <span className="font-mono bg-slate-800 px-2 py-1 rounded text-slate-300 border border-slate-700">
-                    PIN: {isDemo && /^\d{4}$/.test(u.pin_hash) ? u.pin_hash : "••••••"}
+                    PIN: {isDemo && /^\d{4}$/.test(u.pin_hash ?? '') ? u.pin_hash : "••••••"}
                   </span>
                 </div>
               </div>
