@@ -13,7 +13,7 @@ import {
 import { db } from '../../lib/db';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useUiStore } from '../../store/useUiStore';
-import { seedDemoData } from '../../lib/db/seed';
+import { seedDemoData, DEMO_TENANT_ID } from '../../lib/db/seed';
 import { createUser } from '../../lib/services/userService';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -33,6 +33,10 @@ export const SettingsPage: React.FC = () => {
   });
   const [exporting, setExporting] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const isDemo = currentTenant?.id === DEMO_TENANT_ID;
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordMessage, setPasswordMessage] = useState('');
+  const [passwordBusy, setPasswordBusy] = useState(false);
 
   // Modal Novo Operador
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
@@ -109,9 +113,32 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordMessage('');
+    if (newPassword.length < 12) { setPasswordMessage('A nova senha deve ter pelo menos 12 caracteres.'); return; }
+    const token = sessionStorage.getItem('konnexy_access_token');
+    const url = import.meta.env.VITE_SUPABASE_URL;
+    const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    if (!token || !url || !key) { setPasswordMessage('Faça login novamente para alterar sua senha.'); return; }
+    setPasswordBusy(true);
+    try {
+      const response = await fetch(`${url.replace(/\/$/, '')}/auth/v1/user`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', apikey: key, Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ password: newPassword })
+      });
+      if (!response.ok) { const body = await response.json().catch(() => ({})); throw new Error(body.msg || body.message || 'Não foi possível atualizar a senha.'); }
+      setNewPassword('');
+      setPasswordMessage('Senha atualizada. Use a nova senha no próximo acesso.');
+    } catch (err) { setPasswordMessage(err instanceof Error ? err.message : 'Falha ao atualizar senha.'); }
+    finally { setPasswordBusy(false); }
+  };
+
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentTenant) return;
+    if (!isDemo) { setUserModalError('O cadastro de operadores de empresas reais exige provisionamento no servidor.'); return; }
     setUserModalError(null);
 
     if (!newUserName.trim()) {
@@ -222,10 +249,11 @@ export const SettingsPage: React.FC = () => {
               Operadores & Perfis de Acesso (RBAC)
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              Usuários cadastrados no terminal com autenticação e troca rápida por PIN de 4 dígitos
+              {isDemo ? "Operadores locais da demonstração (PIN de teste)" : "Operadores reais devem ser autorizados pelo administrador no servidor"}
             </p>
           </div>
           <Button
+            disabled={!isDemo}
             onClick={() => setIsUserModalOpen(true)}
             variant="primary"
             size="sm"
@@ -260,7 +288,7 @@ export const SettingsPage: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <span className="font-mono bg-slate-800 px-2 py-1 rounded text-slate-300 border border-slate-700">
-                    PIN: {u.pin_hash}
+                    PIN: {isDemo && /^\d{4}$/.test(u.pin_hash ?? '') ? u.pin_hash : "••••••"}
                   </span>
                 </div>
               </div>
@@ -269,6 +297,15 @@ export const SettingsPage: React.FC = () => {
         </div>
       </Card>
 
+      {!isDemo && <Card className="space-y-3">
+        <h3 className="text-base font-bold text-white">Alterar senha de acesso</h3>
+        <p className="text-sm text-slate-400">Troque a senha provisória fornecida pelo administrador. Use uma senha exclusiva com pelo menos 12 caracteres.</p>
+        <form onSubmit={handlePasswordChange} className="flex flex-wrap gap-3">
+          <input aria-label="Nova senha" type="password" autoComplete="new-password" minLength={12} required value={newPassword} onChange={e => setNewPassword(e.target.value)} className="min-w-56 flex-1 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white" placeholder="Nova senha (12+ caracteres)" />
+          <Button type="submit" disabled={passwordBusy}>{passwordBusy ? 'Salvando...' : 'Atualizar senha'}</Button>
+        </form>
+        {passwordMessage && <p role="status" className="text-sm text-amber-300">{passwordMessage}</p>}
+      </Card>}
       {/* Persistência Local (IndexedDB) e Backups */}
       <Card className="space-y-4">
         <h3 className="text-base font-bold text-white flex items-center gap-2">
