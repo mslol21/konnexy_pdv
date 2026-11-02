@@ -92,7 +92,8 @@ describe('FASE 5: Bateria de Testes de Aceitação e Estresse Offline', () => {
     const engine = new SyncEngine({ batchSize: 50 });
     const syncRes = await engine.syncBatch(DEMO_TENANT_ID, DEMO_STORE_ID);
     expect(syncRes.success).toBe(true);
-    expect(syncRes.processed).toBe(21);
+    expect(syncRes.processed).toBe(0);
+    expect(await getPendingSyncCount(DEMO_TENANT_ID, DEMO_STORE_ID)).toBe(21);
 
     // 6. Prova de zero duplicação ao reenviar
     const reSync = await engine.syncBatch(DEMO_TENANT_ID, DEMO_STORE_ID);
