@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
 import { DashboardPage } from '../features/dashboard/DashboardPage';
 import { LoginPage } from '../features/auth/LoginPage';
+import { LandingPage } from '../features/landing/LandingPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
 import { PdvPage } from '../features/pdv/PdvPage';
 import { ProductsPage } from '../features/products/ProductsPage';
@@ -24,10 +25,11 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 export const AppRoutes: React.FC = () => {
   return (
     <Routes>
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
 
       <Route
-        path="/"
+        path="/app"
         element={
           <ProtectedRoute>
             <AppLayout />
