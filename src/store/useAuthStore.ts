@@ -99,8 +99,8 @@ export const useAuthStore = create<AuthState>()(
         currentTenant: state.currentTenant,
         currentStore: state.currentStore,
         deviceId: state.deviceId,
-        isAuthenticated: false,
-        isPinLocked: true
+        isAuthenticated: state.isAuthenticated && state.currentTenant?.id === DEMO_TENANT_ID,
+        isPinLocked: state.isPinLocked
       })
     }
   )

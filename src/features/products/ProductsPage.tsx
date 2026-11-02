@@ -9,7 +9,8 @@ import {
 import { db } from '../../lib/db';
 import { useAuthStore } from '../../store/useAuthStore';
 import { 
-  createProduct, 
+  createProduct,
+  updateProduct,
   searchLocalProducts, 
   exportProductsToCSV 
 } from '../../lib/services/productService';
@@ -30,6 +31,7 @@ export const ProductsPage: React.FC = () => {
 
   // Modal de Criação / Edição
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [name, setName] = useState('');
   const [sku, setSku] = useState('');
   const [barcode, setBarcode] = useState('');
@@ -73,6 +75,7 @@ export const ProductsPage: React.FC = () => {
   }, [loadData]);
 
   const handleOpenCreateModal = () => {
+    setEditingProduct(null);
     setName('');
     setSku(`SKU-${Math.floor(1000 + Math.random() * 9000)}`);
     setBarcode('');
@@ -83,6 +86,22 @@ export const ProductsPage: React.FC = () => {
     setPromoInput('');
     setMinStockInput('10');
     setInitialStockInput('20');
+    setFormError(null);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEditModal = (product: Product) => {
+    setEditingProduct(product);
+    setName(product.name);
+    setSku(product.sku);
+    setBarcode(product.barcode || '');
+    setCategoryId(product.category_id || '');
+    setUnit(product.unit);
+    setCostInput((product.cost_cents / 100).toFixed(2).replace('.', ','));
+    setPriceInput((product.price_cents / 100).toFixed(2).replace('.', ','));
+    setPromoInput(product.promo_price_cents ? (product.promo_price_cents / 100).toFixed(2).replace('.', ',') : '');
+    setMinStockInput(String(product.min_stock));
+    setInitialStockInput('0');
     setFormError(null);
     setIsModalOpen(true);
   };
@@ -113,7 +132,7 @@ export const ProductsPage: React.FC = () => {
 
     setSubmitting(true);
     try {
-      await createProduct({
+      const productParams = {
         tenantId: currentTenant.id,
         storeId: currentStore.id,
         deviceId,
@@ -129,7 +148,9 @@ export const ProductsPage: React.FC = () => {
         initialStock,
         userId: currentUser.id,
         userName: currentUser.name
-      });
+      };
+      if (editingProduct) await updateProduct({ ...productParams, productId: editingProduct.id });
+      else await createProduct(productParams);
 
       setIsModalOpen(false);
       await loadData();
@@ -211,12 +232,13 @@ export const ProductsPage: React.FC = () => {
                 <th className="py-3 px-4">Preço Venda</th>
                 <th className="py-3 px-4 text-center">Estoque Atual</th>
                 <th className="py-3 px-4 text-center">Status</th>
+                <th className="py-3 px-4 text-center">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800 text-slate-300">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-slate-500">
+                  <td colSpan={8} className="py-8 text-center text-slate-500">
                     Carregando produtos locais...
                   </td>
                 </tr>
@@ -269,6 +291,9 @@ export const ProductsPage: React.FC = () => {
                           {p.is_active ? 'Ativo' : 'Inativo'}
                         </Badge>
                       </td>
+                      <td className="py-3 px-4 text-center">
+                        <button type="button" onClick={() => handleOpenEditModal(p)} className="rounded-lg border border-emerald-500/40 px-3 py-2 text-xs font-semibold text-emerald-300 hover:bg-emerald-500/10">Editar</button>
+                      </td>
                     </tr>
                   );
                 })
@@ -284,7 +309,7 @@ export const ProductsPage: React.FC = () => {
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
                 <Plus className="w-5 h-5 text-emerald-400" />
-                Cadastrar Novo Produto
+                {editingProduct ? 'Editar Produto' : 'Cadastrar Novo Produto'}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -416,7 +441,7 @@ export const ProductsPage: React.FC = () => {
                     onChange={(e) => setMinStockInput(e.target.value)}
                   />
                 </div>
-                <div>
+                {!editingProduct && <div>
                   <label className="block text-xs font-semibold text-slate-400 uppercase mb-1">
                     Estoque Inicial de Lançamento
                   </label>
@@ -425,7 +450,7 @@ export const ProductsPage: React.FC = () => {
                     value={initialStockInput}
                     onChange={(e) => setInitialStockInput(e.target.value)}
                   />
-                </div>
+                </div>}
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
@@ -438,7 +463,7 @@ export const ProductsPage: React.FC = () => {
                   Cancelar
                 </Button>
                 <Button type="submit" variant="primary" isLoading={submitting}>
-                  Salvar Produto Localmente
+                  {editingProduct ? 'Salvar Alterações' : 'Salvar Produto Localmente'}
                 </Button>
               </div>
             </form>

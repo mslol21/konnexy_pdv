@@ -187,3 +187,41 @@ export async function exportProductsToCSV(tenantId: string, storeId: string): Pr
 
   return [headers.join(';'), ...rows.map((r) => r.join(';'))].join('\n');
 }
+
+export async function updateProduct(params: CreateProductParams & { productId: string }): Promise<Product> {
+  const original = await db.products.get(params.productId);
+  if (!original || original.tenant_id !== params.tenantId || original.store_id !== params.storeId || original.deleted_at) {
+    throw new Error('Produto não encontrado nesta loja.');
+  }
+  const sku = params.sku.trim().toUpperCase();
+  const conflict = await db.products.where('[tenant_id+store_id]')
+    .equals([params.tenantId, params.storeId])
+    .and(p => p.id !== original.id && p.sku === sku && !p.deleted_at).first();
+  if (conflict) throw new Error('Este SKU já pertence a outro produto.');
+  if (!params.name.trim() || !sku || !Number.isInteger(params.priceCents) || params.priceCents <= 0) {
+    throw new Error('Informe nome, SKU e preço de venda válido.');
+  }
+  const product: Product = {
+    ...original,
+    category_id: params.categoryId || undefined,
+    sku,
+    barcode: params.barcode?.trim() || undefined,
+    name: params.name.trim(),
+    unit: params.unit.trim().toUpperCase() || 'UN',
+    cost_cents: params.costCents,
+    price_cents: params.priceCents,
+    promo_price_cents: params.promoPriceCents ?? null,
+    min_stock: params.minStock,
+    version: original.version + 1,
+    updated_at: getISOTimestamp()
+  };
+  await db.transaction('rw', db.products, db.sync_events, async () => {
+    await db.products.put(product);
+    await enqueueSyncEvent({
+      tenantId: params.tenantId, storeId: params.storeId, deviceId: params.deviceId,
+      aggregateId: product.id, aggregateType: 'product', operationType: 'UPDATE',
+      payload: { product }
+    });
+  });
+  return product;
+}

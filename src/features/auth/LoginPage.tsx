@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { signInRealAccount } from './realAuth';
 import { useNavigate } from 'react-router-dom';
 import { Store, ArrowRight, ShieldCheck, RefreshCw } from 'lucide-react';
 import { db } from '../../lib/db';
@@ -10,6 +11,11 @@ export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { setSession } = useAuthStore();
   const [users, setUsers] = useState<UserRole[]>([]);
+  const [loginMode, setLoginMode] = useState<'real' | 'demo'>('real');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [signingIn, setSigningIn] = useState(false);
   const [tenant, setTenant] = useState<Tenant | null>(null);
   const [store, setStore] = useState<StoreType | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,6 +55,21 @@ export const LoginPage: React.FC = () => {
     navigate('/app');
   };
 
+  const handleRealLogin = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setLoginError(null);
+    setSigningIn(true);
+    try {
+      const result = await signInRealAccount(email, password);
+      setSession(result.user, result.tenant, result.store);
+      navigate('/app');
+    } catch (error) {
+      setLoginError(error instanceof Error ? error.message : 'Falha ao entrar.');
+    } finally {
+      setSigningIn(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-300">
@@ -74,6 +95,22 @@ export const LoginPage: React.FC = () => {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
         <div className="bg-slate-900 border border-slate-800 py-8 px-6 shadow-xl rounded-2xl space-y-6">
+          <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-950 p-1">
+            <button type="button" onClick={() => setLoginMode('real')} className={loginMode === 'real' ? 'rounded-lg bg-emerald-600 px-3 py-2 text-sm font-bold text-white' : 'rounded-lg px-3 py-2 text-sm text-slate-400'}>Conta empresarial</button>
+            <button type="button" onClick={() => setLoginMode('demo')} className={loginMode === 'demo' ? 'rounded-lg bg-emerald-600 px-3 py-2 text-sm font-bold text-white' : 'rounded-lg px-3 py-2 text-sm text-slate-400'}>Demonstração</button>
+          </div>
+          {loginMode === 'real' ? (
+            <form onSubmit={handleRealLogin} className="space-y-4">
+              <h3 className="font-bold text-white">Acesso de clientes</h3>
+              <label className="block text-xs font-semibold text-slate-400">E-mail</label>
+              <input type="email" autoComplete="username" required value={email} onChange={e => setEmail(e.target.value)} className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white" placeholder="voce@empresa.com.br" />
+              <label className="block text-xs font-semibold text-slate-400">Senha</label>
+              <input type="password" autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white" placeholder="Sua senha" />
+              {loginError && <p role="alert" className="rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-300">{loginError}</p>}
+              <button type="submit" disabled={signingIn} className="w-full rounded-lg bg-emerald-600 px-4 py-3 font-bold text-white disabled:opacity-50">{signingIn ? 'Entrando...' : 'Entrar na minha empresa'}</button>
+              <p className="text-xs text-slate-400">Acesso exclusivo para contas autorizadas e vinculadas a uma empresa.</p>
+            </form>
+          ) : (<div className="space-y-6">
           <div className="border-b border-slate-800 pb-4">
             <div className="flex items-center gap-2 text-slate-300 text-sm">
               <Store className="w-4 h-4 text-emerald-400" />
@@ -122,6 +159,7 @@ export const LoginPage: React.FC = () => {
               Este dispositivo armazena seus dados em IndexedDB seguro e funciona 100% sem conexão com a internet.
             </span>
           </div>
+          </div>)}
         </div>
       </div>
     </div>
