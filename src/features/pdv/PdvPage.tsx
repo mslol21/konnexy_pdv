@@ -225,7 +225,7 @@ export const PdvPage: React.FC = () => {
               </p>
             </div>
           </div>
-          <Link to="/cash">
+          <Link to="/app/cash">
             <Button variant="danger" size="sm">
               Abrir Caixa Agora
             </Button>
