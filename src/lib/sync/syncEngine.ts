@@ -107,15 +107,16 @@ export class SyncEngine {
   private async dispatchToServer(events: SyncEvent[]): Promise<string[]> {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const accessToken = sessionStorage.getItem('konnexy_access_token');
 
-    if (supabaseUrl && supabaseKey && !supabaseUrl.includes('seu-projeto')) {
+    if (supabaseUrl && supabaseKey && accessToken && !supabaseUrl.includes('seu-projeto')) {
       try {
         const response = await fetch(`${supabaseUrl}/rest/v1/rpc/process_sync_batch`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'apikey': supabaseKey,
-            'Authorization': `Bearer ${supabaseKey}`
+            'Authorization': `Bearer ${accessToken}`
           },
           body: JSON.stringify({
             p_device_id: events[0]?.device_id || 'dev-unknown',
@@ -128,7 +129,8 @@ export class SyncEngine {
         }
 
         const data = await response.json();
-        return data.confirmed_event_ids || events.map((e) => e.event_id);
+        if (!Array.isArray(data.confirmed_event_ids)) throw new Error('Resposta de sincronização inválida');
+        return data.confirmed_event_ids.filter((id: unknown): id is string => typeof id === 'string' && events.some(e => e.event_id === id));
       } catch (networkErr) {
         // Incrementa retries em caso de falha de conexão real
         const eventIds = events.map((e) => e.event_id);
@@ -137,8 +139,8 @@ export class SyncEngine {
       }
     }
 
-    // Modo local / Mock com validação de payload íntegro
-    return events.map((e) => e.event_id);
+    // Nunca confirmar eventos localmente sem persistência remota.
+    throw new Error('Sincronização indisponível: configuração ou sessão ausente');
   }
 }
 
