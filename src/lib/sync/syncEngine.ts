@@ -1,4 +1,5 @@
 import { db } from '../db';
+import { DEMO_TENANT_ID } from '../db/seed';
 import { updateEventsSyncStatus } from './outbox';
 import { useUiStore } from '../../store/useUiStore';
 import type { SyncEvent } from '../../types/database';
@@ -53,6 +54,7 @@ export class SyncEngine {
     processed: number;
     success: boolean;
   }> {
+    if (tenantId === DEMO_TENANT_ID) return { processed: 0, success: true }; // Demo nunca envia dados fictícios ao Supabase.
     if (this.isRunning) return { processed: 0, success: false };
     this.isRunning = true;
 
@@ -87,7 +89,7 @@ export class SyncEngine {
         .count();
 
       uiStore.setPendingSyncCount(remainingCount);
-      uiStore.setLastSyncAt(new Date().toISOString());
+      if (confirmedIds.length > 0) uiStore.setLastSyncAt(new Date().toISOString());
 
       return { processed: confirmedIds.length, success: true };
     } catch (err: unknown) {
