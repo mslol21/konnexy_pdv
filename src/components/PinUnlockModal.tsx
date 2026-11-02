@@ -1,20 +1,23 @@
 import React, { useState } from 'react';
 import { Lock, Delete } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
+import { DEMO_TENANT_ID } from '../lib/db/seed';
 
 export const PinUnlockModal: React.FC = () => {
-  const { isPinLocked, unlockWithPin, currentUser } = useAuthStore();
+  const { isPinLocked, unlockWithPin, currentUser, currentTenant, pinBlockedUntil } = useAuthStore();
+  const demo = currentTenant?.id === DEMO_TENANT_ID;
+  const pinLength = demo ? 4 : 6;
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
 
   if (!isPinLocked) return null;
 
   const handleDigit = (digit: string) => {
-    if (pin.length < 6) {
+    if (pin.length < pinLength) {
       const nextPin = pin + digit;
       setPin(nextPin);
       setError(false);
-      if (nextPin.length === 4) {
+      if (nextPin.length === pinLength) {
         verifyPin(nextPin);
       }
     }
@@ -43,11 +46,11 @@ export const PinUnlockModal: React.FC = () => {
         <h2 className="text-xl font-bold text-white mb-1">Terminal Bloqueado</h2>
         <p className="text-xs text-slate-400 mb-6">
           Operador atual: <strong className="text-slate-200">{currentUser?.name || 'Operador'}</strong>
-          <br />Digite seu PIN de 4 dígitos para continuar
+          <br />{demo ? 'Digite seu PIN de 4 dígitos para continuar' : 'Digite seu PIN de 6 dígitos para continuar'}
         </p>
 
         <div className="flex justify-center gap-3 mb-6">
-          {[0, 1, 2, 3].map((index) => (
+          {Array.from({ length: pinLength }, (_, index) => index).map((index) => (
             <div
               key={index}
               className={`w-4 h-4 rounded-full border-2 transition-all ${
@@ -61,7 +64,7 @@ export const PinUnlockModal: React.FC = () => {
 
         {error && (
           <p className="text-xs text-rose-400 font-semibold mb-4">
-            PIN incorreto. Tente novamente ou use 1234 / 0000 (demo).
+            {pinBlockedUntil > Date.now() ? 'Muitas tentativas. Aguarde 5 minutos.' : demo ? 'PIN incorreto. Use 1234 / 0000 (demo).' : 'PIN incorreto. Tente novamente.'}
           </p>
         )}
 
