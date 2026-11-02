@@ -1,4 +1,5 @@
 import { db } from '../db';
+import { hashOperatorPin } from '../security/operatorPin';
 import type { UserRole, RoleName } from '../../types/database';
 import { generateUUID } from '../utils/id';
 import { getISOTimestamp } from '../utils/date';
@@ -29,7 +30,7 @@ export async function createUser(params: CreateUserParams): Promise<UserRole> {
     name: params.name.trim(),
     email: params.email.trim().toLowerCase(),
     role: params.role,
-    pin_hash: params.pin.trim(),
+    pin_hash: await hashOperatorPin(params.pin.trim()),
     is_active: true,
     created_at: now,
     updated_at: now
