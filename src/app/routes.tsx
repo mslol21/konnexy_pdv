@@ -29,6 +29,9 @@ export const AppRoutes: React.FC = () => {
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/master" element={<MasterPage />} />
+      <Route path="/pdv" element={<Navigate to="/app/pdv" replace />} />
+      <Route path="/cash" element={<Navigate to="/app/cash" replace />} />
+      <Route path="/inventory" element={<Navigate to="/app/inventory" replace />} />
 
       <Route
         path="/app"
