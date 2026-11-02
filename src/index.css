@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  input, textarea {
+    user-select: auto;
+    -webkit-user-select: auto;
+  }
+}
+
+/* Otimização para telas de toque em balcão */
+button, input, select, a {
+  touch-action: manipulation;
+}
+
+/* Estilo para comprovante não fiscal térmico (58mm e 80mm) */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #thermal-receipt, #thermal-receipt * {
+    visibility: visible;
+  }
+  #thermal-receipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm;
+    margin: 0;
+    padding: 2mm;
+    font-family: monospace;
+    font-size: 11px;
+    line-height: 1.2;
+    color: #000;
+    background: #fff;
+  }
+  @page {
+    margin: 0;
+    size: auto;
+  }
+}
