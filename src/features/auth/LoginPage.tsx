@@ -46,7 +46,7 @@ export const LoginPage: React.FC = () => {
   const handleLogin = (userToLogin: UserRole) => {
     if (!tenant || !store) return;
     setSession(userToLogin, tenant, store);
-    navigate('/');
+    navigate('/app');
   };
 
   if (loading) {
