@@ -441,14 +441,16 @@ export const CashPage: React.FC = () => {
 
             <form
               onSubmit={(e) => {
-                if (openModalType === 'open') handleOpenCash(e);
-                else if (openModalType === 'close') handleCloseCash(e);
+                e.preventDefault();
+                if (submitting) return;
+                if (openModalType === 'open') void handleOpenCash(e);
+                else if (openModalType === 'close') void handleCloseCash(e);
                 else if (openModalType === 'supply') {
                   e.preventDefault();
-                  handleCashMovement('supply');
+                  void handleCashMovement('supply');
                 } else if (openModalType === 'bleed') {
                   e.preventDefault();
-                  handleCashMovement('bleed');
+                  void handleCashMovement('bleed');
                 }
               }}
               className="space-y-4"
