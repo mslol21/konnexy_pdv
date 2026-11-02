@@ -4,6 +4,7 @@ import { AppLayout } from '../components/layout/AppLayout';
 import { DashboardPage } from '../features/dashboard/DashboardPage';
 import { LoginPage } from '../features/auth/LoginPage';
 import { LandingPage } from '../features/landing/LandingPage';
+import { MasterPage } from '../features/master/MasterPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
 import { PdvPage } from '../features/pdv/PdvPage';
 import { ProductsPage } from '../features/products/ProductsPage';
@@ -27,6 +28,7 @@ export const AppRoutes: React.FC = () => {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/master" element={<MasterPage />} />
 
       <Route
         path="/app"
