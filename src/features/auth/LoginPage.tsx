@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Store, ArrowRight, ShieldCheck, RefreshCw } from 'lucide-react';
 import { db } from '../../lib/db';
-import { seedDemoData, isDatabaseInitialized } from '../../lib/db/seed';
+import { seedDemoData, isDatabaseInitialized, DEMO_TENANT_ID } from '../../lib/db/seed';
 import { useAuthStore } from '../../store/useAuthStore';
 import type { UserRole, Tenant, Store as StoreType } from '../../types/database';
 
@@ -20,13 +20,13 @@ export const LoginPage: React.FC = () => {
       setLoading(true);
       try {
         const initialized = await isDatabaseInitialized();
-        if (!initialized) {
+        if (!initialized || !(await db.tenants.get(DEMO_TENANT_ID))) {
           await seedDemoData();
         }
 
-        const t = await db.tenants.toCollection().first();
-        const s = await db.stores.toCollection().first();
-        const u = await db.user_roles.toArray();
+        const t = await db.tenants.get(DEMO_TENANT_ID);
+        const s = await db.stores.where('tenant_id').equals(DEMO_TENANT_ID).first();
+        const u = await db.user_roles.where('tenant_id').equals(DEMO_TENANT_ID).toArray();
 
         setTenant(t || null);
         setStore(s || null);
@@ -106,7 +106,7 @@ export const LoginPage: React.FC = () => {
                     <div>
                       <p className="font-bold text-sm text-white">{u.name}</p>
                       <p className="text-xs text-slate-400">
-                        {u.role === 'owner' ? 'Proprietário (Acesso Total)' : 'Operador de Caixa'} • PIN: {u.pin_hash}
+                        {u.role === 'owner' ? 'Proprietário (Acesso Total)' : 'Operador de Caixa'} • PIN demonstrativo: {u.pin_hash}
                       </p>
                     </div>
                   </div>
