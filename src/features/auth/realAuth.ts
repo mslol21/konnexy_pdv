@@ -35,7 +35,7 @@ export async function signInRealAccount(email: string, password: string): Promis
     const stores = await getRows<Store>('stores', `tenant_id=eq.${encodeURIComponent(user.tenant_id)}&limit=100`);
     const tenant = tenants[0];
     const store = stores.find(s => s.id === user.store_id) || stores[0];
-    if (!tenant || !store) throw new Error('Empresa ou loja não disponível para esta conta.');
+    if (!tenant || !store || (tenant as Tenant & {is_active?: boolean}).is_active === false) throw new Error('Empresa suspensa ou loja indisponível para esta conta.');
     await db.transaction('rw', db.tenants, db.stores, db.user_roles, async () => {
       await db.tenants.put(tenant);
       await db.stores.put(store);
