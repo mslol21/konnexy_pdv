@@ -132,9 +132,7 @@ export const ProductsPage: React.FC = () => {
 
     setSubmitting(true);
     try {
-      const save = editingProduct ? updateProduct : createProduct;
-      await save({
-        ...(editingProduct ? { productId: editingProduct.id } : {}),
+      const productParams = {
         tenantId: currentTenant.id,
         storeId: currentStore.id,
         deviceId,
@@ -150,7 +148,9 @@ export const ProductsPage: React.FC = () => {
         initialStock,
         userId: currentUser.id,
         userName: currentUser.name
-      });
+      };
+      if (editingProduct) await updateProduct({ ...productParams, productId: editingProduct.id });
+      else await createProduct(productParams);
 
       setIsModalOpen(false);
       await loadData();
