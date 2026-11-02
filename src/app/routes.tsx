@@ -30,7 +30,7 @@ export const AppRoutes: React.FC = () => {
 
       <Route
         path="/app"
-        element=
+        element={
           <ProtectedRoute>
             <AppLayout />
           </ProtectedRoute>
