@@ -19,7 +19,7 @@ export default defineConfig({
         background_color: '#0f172a',
         display: 'standalone',
         orientation: 'any',
-        start_url: '/',
+        start_url: '/app',
         icons: [
           {
             src: '/icons/icon-192x192.png',
