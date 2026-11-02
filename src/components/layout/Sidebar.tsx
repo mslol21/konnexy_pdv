@@ -24,15 +24,15 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: 'Frente de Caixa (PDV)', path: '/pdv', icon: ShoppingCart, badge: 'Balcão' },
-  { name: 'Visão Geral (Dashboard)', path: '/', icon: LayoutDashboard },
-  { name: 'Produtos & Catálogo', path: '/products', icon: Package },
-  { name: 'Controle de Estoque', path: '/inventory', icon: Boxes },
-  { name: 'Operações de Caixa', path: '/cash', icon: Banknote },
-  { name: 'Contas & Financeiro', path: '/financial', icon: ReceiptText },
-  { name: 'Relatórios Gerenciais', path: '/reports', icon: BarChart3 },
-  { name: 'Clientes & Pessoas', path: '/customers', icon: Users },
-  { name: 'Configurações & Terminal', path: '/settings', icon: Settings },
+  { name: 'Frente de Caixa (PDV)', path: '/app/pdv', icon: ShoppingCart, badge: 'Balcão' },
+  { name: 'Visão Geral (Dashboard)', path: '/app', icon: LayoutDashboard },
+  { name: 'Produtos & Catálogo', path: '/app/products', icon: Package },
+  { name: 'Controle de Estoque', path: '/app/inventory', icon: Boxes },
+  { name: 'Operações de Caixa', path: '/app/cash', icon: Banknote },
+  { name: 'Contas & Financeiro', path: '/app/financial', icon: ReceiptText },
+  { name: 'Relatórios Gerenciais', path: '/app/reports', icon: BarChart3 },
+  { name: 'Clientes & Pessoas', path: '/app/customers', icon: Users },
+  { name: 'Configurações & Terminal', path: '/app/settings', icon: Settings },
 ];
 
 export const Sidebar: React.FC = () => {
