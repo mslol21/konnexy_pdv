@@ -9,7 +9,7 @@ describe('FASE 4: Sincronização e Idempotência do Outbox Engine', () => {
     await seedDemoData(true);
   });
 
-  it('deve sincronizar lote de eventos pendentes e atualizar status para synced', async () => {
+  it('não deve fingir sincronização remota de eventos demonstrativos', async () => {
     // 1. Enfileira 3 eventos
     await enqueueSyncEvent({
       tenantId: DEMO_TENANT_ID,
@@ -47,11 +47,11 @@ describe('FASE 4: Sincronização e Idempotência do Outbox Engine', () => {
     const result = await engine.syncBatch(DEMO_TENANT_ID, DEMO_STORE_ID);
 
     expect(result.success).toBe(true);
-    expect(result.processed).toBe(3);
+    expect(result.processed).toBe(0);
 
     // 3. Verifica que os eventos agora têm status 'synced'
     const pendingAfter = await getPendingSyncCount(DEMO_TENANT_ID, DEMO_STORE_ID);
-    expect(pendingAfter).toBe(0);
+    expect(pendingAfter).toBe(3);
 
     const syncedEvents = await db.sync_events
       .where('[tenant_id+store_id]')
@@ -59,8 +59,7 @@ describe('FASE 4: Sincronização e Idempotência do Outbox Engine', () => {
       .and((e) => e.sync_status === 'synced')
       .toArray();
 
-    expect(syncedEvents.length).toBeGreaterThanOrEqual(3);
-    expect(syncedEvents[0].synced_at).toBeDefined();
+    expect(syncedEvents.length).toBe(0);
 
     // 4. Prova de zero duplicação ao rodar o lote novamente
     const reSyncResult = await engine.syncBatch(DEMO_TENANT_ID, DEMO_STORE_ID);
