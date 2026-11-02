@@ -25,12 +25,12 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 export const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      <Route path="/inicio" element={<LandingPage />} />
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
 
       <Route
-        path="/"
-        element={
+        path="/app"
+        element=
           <ProtectedRoute>
             <AppLayout />
           </ProtectedRoute>
