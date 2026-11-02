@@ -124,7 +124,7 @@ export const DashboardPage: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Link to="/pdv">
+          <Link to="/app/pdv">
             <Button size="lg" className="gap-2 shadow-lg shadow-emerald-950/40">
               <ShoppingBag className="w-5 h-5" />
               <span>Abrir Balcão de Vendas (PDV)</span>
@@ -146,7 +146,7 @@ export const DashboardPage: React.FC = () => {
               </p>
             </div>
           </div>
-          <Link to="/cash">
+          <Link to="/app/cash">
             <Button size="sm" variant="outline" className="text-amber-300 border-amber-500/50 hover:bg-amber-950/30">
               Abrir Caixa
             </Button>
@@ -232,7 +232,7 @@ export const DashboardPage: React.FC = () => {
               <ShoppingBag className="w-4 h-4 text-emerald-400" />
               Últimas Vendas Realizadas
             </h3>
-            <Link to="/pdv" className="text-xs text-emerald-400 hover:underline flex items-center gap-1">
+            <Link to="/app/pdv" className="text-xs text-emerald-400 hover:underline flex items-center gap-1">
               Ver balcão <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -273,7 +273,7 @@ export const DashboardPage: React.FC = () => {
               <Package className="w-4 h-4 text-amber-400" />
               Atenção: Estoque Baixo
             </h3>
-            <Link to="/inventory" className="text-xs text-emerald-400 hover:underline flex items-center gap-1">
+            <Link to="/app/inventory" className="text-xs text-emerald-400 hover:underline flex items-center gap-1">
               Ajustar estoque <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
