@@ -123,7 +123,7 @@ export const SettingsPage: React.FC = () => {
     if (!token || !url || !key) { setPasswordMessage('Faça login novamente para alterar sua senha.'); return; }
     setPasswordBusy(true);
     try {
-      const response = await fetch(`${url.replace(/\\/$/, '')}/auth/v1/user`, {
+      const response = await fetch(`${url.replace(/\/$/, '')}/auth/v1/user`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', apikey: key, Authorization: `Bearer ${token}` },
         body: JSON.stringify({ password: newPassword })
@@ -288,7 +288,7 @@ export const SettingsPage: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <span className="font-mono bg-slate-800 px-2 py-1 rounded text-slate-300 border border-slate-700">
-                    PIN: {isDemo && /^\\d{4}$/.test(u.pin_hash) ? u.pin_hash : "••••••"}
+                    PIN: {isDemo && /^\d{4}$/.test(u.pin_hash) ? u.pin_hash : "••••••"}
                   </span>
                 </div>
               </div>
