@@ -8,10 +8,10 @@ export const BottomNav: React.FC = () => {
   const { toggleSidebar } = useUiStore();
 
   const primaryItems = [
-    { name: 'PDV', path: '/pdv', icon: ShoppingCart },
-    { name: 'Dashboard', path: '/', icon: LayoutDashboard },
-    { name: 'Produtos', path: '/products', icon: Package },
-    { name: 'Caixa', path: '/cash', icon: Banknote },
+    { name: 'PDV', path: '/app/pdv', icon: ShoppingCart },
+    { name: 'Dashboard', path: '/app', icon: LayoutDashboard },
+    { name: 'Produtos', path: '/app/products', icon: Package },
+    { name: 'Caixa', path: '/app/cash', icon: Banknote },
   ];
 
   return (
