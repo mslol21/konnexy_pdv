@@ -50,7 +50,7 @@ export const AppLayout: React.FC = () => {
       <div className="flex flex-1 overflow-hidden relative">
         <Sidebar />
 
-        <main className="flex-1 overflow-y-auto pb-20 lg:pb-6 p-4 sm:p-6 bg-slate-900/50">
+        <main className="min-w-0 flex-1 overflow-y-auto pb-20 lg:pb-6 p-4 sm:p-6 bg-slate-900/50">
           <Outlet />
         </main>
       </div>
