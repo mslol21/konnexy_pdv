@@ -1,12 +1,24 @@
 import React from 'react';
-import { Menu, User, Store as StoreIcon, Lock, Moon, Sun } from 'lucide-react';
+import { Menu, User, Store as StoreIcon, Lock, Moon, Sun, Download } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useUiStore } from '../../store/useUiStore';
 import { StatusIndicator } from '../ui/StatusIndicator';
+import { usePwaInstall } from '../../lib/hooks/usePwaInstall';
 
 export const Header: React.FC = () => {
   const { currentUser, currentStore, lockSession } = useAuthStore();
   const { toggleSidebar, theme, toggleTheme } = useUiStore();
+  const { isInstalled, isInstallable, isIOS, installApp } = usePwaInstall();
+
+  const handleInstallClick = async () => {
+    if (isInstallable) {
+      await installApp();
+    } else if (isIOS) {
+      alert('Para instalar no iOS (iPhone/iPad):\n1. Toque no ícone Compartilhar (quadrado com seta)\n2. Role para baixo e selecione "Adicionar à Tela de Início"');
+    } else {
+      alert('Para instalar no seu computador ou celular:\nClique no ícone de instalação na barra de endereços do navegador (ou vá em Menu > Instalar Konnexy PDV).');
+    }
+  };
 
   return (
     <header className="h-16 bg-slate-900 border-b border-slate-800 px-4 flex items-center justify-between z-20 shrink-0">
@@ -39,6 +51,17 @@ export const Header: React.FC = () => {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-4">
+        {!isInstalled && (
+          <button
+            onClick={handleInstallClick}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 text-xs font-semibold transition-all cursor-pointer min-h-[44px]"
+            title="Instalar aplicativo para uso offline nativo"
+          >
+            <Download className="w-4 h-4 text-emerald-400" />
+            <span className="hidden sm:inline">Instalar App</span>
+          </button>
+        )}
+
         <StatusIndicator />
 
         <button
