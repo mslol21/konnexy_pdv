@@ -1,6 +1,6 @@
 import { db } from '../db';
 import { DEMO_TENANT_ID } from '../db/seed';
-import { updateEventsSyncStatus } from './outbox';
+import { updateEventsSyncStatus, getPendingSyncCount } from './outbox';
 import { useUiStore } from '../../store/useUiStore';
 import type { SyncEvent } from '../../types/database';
 
@@ -71,7 +71,7 @@ export class SyncEngine {
         .toArray();
 
       if (pendingEvents.length === 0) {
-        uiStore.setPendingSyncCount(0);
+        uiStore.setPendingSyncCount(await getPendingSyncCount(tenantId, storeId));
         return { processed: 0, success: true };
       }
 
@@ -82,11 +82,7 @@ export class SyncEngine {
       await updateEventsSyncStatus(confirmedIds, 'synced');
 
       // 4. Atualiza métricas na UI
-      const remainingCount = await db.sync_events
-        .where('[tenant_id+store_id]')
-        .equals([tenantId, storeId])
-        .and((e) => e.sync_status === 'pending')
-        .count();
+      const remainingCount = await getPendingSyncCount(tenantId, storeId);
 
       uiStore.setPendingSyncCount(remainingCount);
       if (confirmedIds.length > 0) uiStore.setLastSyncAt(new Date().toISOString());
@@ -94,6 +90,7 @@ export class SyncEngine {
       return { processed: confirmedIds.length, success: true };
     } catch (err: unknown) {
       console.warn('[SyncEngine] Falha ao despachar lote de eventos:', err);
+      uiStore.setPendingSyncCount(await getPendingSyncCount(tenantId, storeId));
       return { processed: 0, success: false };
     } finally {
       this.isRunning = false;
