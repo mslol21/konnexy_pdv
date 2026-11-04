@@ -58,6 +58,7 @@ export class SyncEngine {
 
     const uiStore = useUiStore.getState();
     uiStore.setSyncing(true);
+    uiStore.setSyncError(null);
 
     try {
       // 1. Recupera todos os eventos sem confirmação, inclusive falhas antigas (sem perda de dados)
@@ -88,6 +89,7 @@ export class SyncEngine {
       return { processed: confirmedIds.length, success: confirmedIds.length === pendingEvents.length };
     } catch (err: unknown) {
       console.warn('[SyncEngine] Falha ao despachar lote de eventos:', err);
+      useUiStore.getState().setSyncError(err instanceof Error ? err.message : 'Falha inesperada no backup remoto.');
       uiStore.setPendingSyncCount(await getPendingSyncCount(tenantId, storeId));
       return { processed: 0, success: false };
     } finally {
