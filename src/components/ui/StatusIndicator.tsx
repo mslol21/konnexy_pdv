@@ -13,7 +13,7 @@ export const StatusIndicator: React.FC = () => {
     return (
       <div 
         className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-full text-xs font-semibold"
-        title="Operação offline: dados salvos no dispositivo. O envio à nuvem depende da sincronização segura estar disponível."
+        title="Operação offline: dados salvos neste dispositivo. Backup remoto será tentado ao reconectar."
       >
         <WifiOff className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
         <span>OFFLINE</span>
@@ -50,7 +50,7 @@ export const StatusIndicator: React.FC = () => {
     <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full text-xs font-semibold">
       <Wifi className="w-3.5 h-3.5 text-emerald-400" />
       <span className="flex items-center gap-1">
-        <CheckCircle2 className="w-3 h-3 text-emerald-400 inline" /> Sincronizado
+        <CheckCircle2 className="w-3 h-3 text-emerald-400 inline" /> Backup dos eventos confirmado
       </span>
     </div>
   );
