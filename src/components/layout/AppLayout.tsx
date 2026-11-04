@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
@@ -13,7 +13,8 @@ import { DEMO_TENANT_ID } from '../../lib/db/seed';
 
 export const AppLayout: React.FC = () => {
   const { setOnlineStatus, setPendingSyncCount } = useUiStore();
-  const { currentTenant, currentStore } = useAuthStore();
+  const { currentTenant, currentStore, logout } = useAuthStore();
+  const isDemo = currentTenant?.id === DEMO_TENANT_ID;
 
   useEffect(() => {
     if (!currentTenant || !currentStore || currentTenant.id === DEMO_TENANT_ID) return;
@@ -56,6 +57,7 @@ export const AppLayout: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased">
       <OfflineBanner />
+      {isDemo && <div className="flex flex-wrap items-center justify-center gap-2 border-b border-sky-700/40 bg-sky-950 px-4 py-2 text-center text-xs text-sky-200" role="status"><strong>AMBIENTE DE DEMONSTRAÇÃO</strong><span>Os dados desta conta são fictícios, ficam somente neste navegador e não são enviados ao Supabase.</span><Link to="/login" onClick={logout} className="font-bold text-white underline underline-offset-2">Entrar com conta empresarial</Link></div>}
       <Header />
 
       <div className="flex flex-1 overflow-hidden relative">
