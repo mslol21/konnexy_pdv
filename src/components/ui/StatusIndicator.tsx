@@ -13,7 +13,7 @@ export const StatusIndicator: React.FC = () => {
     return (
       <div 
         className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-full text-xs font-semibold"
-        title="Operando no modo Offline. Todas as operações são gravadas no IndexedDB local e serão sincronizadas quando houver rede."
+        title="Operação offline: dados salvos no dispositivo. O envio à nuvem depende da sincronização segura estar disponível."
       >
         <WifiOff className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
         <span>OFFLINE</span>
@@ -39,7 +39,7 @@ export const StatusIndicator: React.FC = () => {
     return (
       <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-full text-xs font-semibold">
         <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-        <span>{pendingSyncCount} pendente{pendingSyncCount > 1 ? 's' : ''}</span>
+        <span>{pendingSyncCount} local{pendingSyncCount > 1 ? 'is' : ''} sem backup</span>
       </div>
     );
   }
