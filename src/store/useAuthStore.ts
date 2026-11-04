@@ -21,6 +21,7 @@ interface AuthState {
   setHasHydrated: (val: boolean) => void;
   setSession: (user: UserRole, tenant: Tenant, store: Store) => void;
   unlockWithPin: (pin: string) => Promise<boolean>;
+  unlockSession: () => void;
   lockSession: () => void;
   logout: () => void;
   switchStore: (store: Store) => void;
@@ -54,14 +55,28 @@ export const useAuthStore = create<AuthState>()(
       },
 
       unlockWithPin: async (pin: string) => {
-        const { currentTenant, pinBlockedUntil, pinFailures } = get();
+        const { currentTenant, currentUser, pinBlockedUntil, pinFailures } = get();
         if (!currentTenant || Date.now() < pinBlockedUntil) return false;
+
+        // Se o operador atual não tem PIN configurado, desbloqueia diretamente
+        if (!currentUser?.pin_hash) {
+          set({
+            isPinLocked: false,
+            pinFailures: 0,
+            pinBlockedUntil: 0
+          });
+          return true;
+        }
 
         // Procura usuário no banco local pelo PIN
         const candidates = await db.user_roles.where('tenant_id').equals(currentTenant.id).and(u => u.is_active).toArray();
-        let user = null;
+        let user: UserRole | null = null;
         for (const candidate of candidates) {
-          if ((currentTenant.id === DEMO_TENANT_ID && candidate.pin_hash === pin) || await verifyOperatorPin(pin, candidate.pin_hash)) {
+          if (
+            (currentTenant.id === DEMO_TENANT_ID && candidate.pin_hash === pin) ||
+            candidate.pin_hash === pin ||
+            await verifyOperatorPin(pin, candidate.pin_hash)
+          ) {
             user = candidate;
             break;
           }
@@ -77,9 +92,14 @@ export const useAuthStore = create<AuthState>()(
           });
           return true;
         }
+
         const failures = pinFailures + 1;
         set({ pinFailures: failures, pinBlockedUntil: failures >= 5 ? Date.now() + 300000 : 0 });
         return false;
+      },
+
+      unlockSession: () => {
+        set({ isPinLocked: false, pinFailures: 0, pinBlockedUntil: 0 });
       },
 
       lockSession: () => {
@@ -116,7 +136,7 @@ export const useAuthStore = create<AuthState>()(
         currentStore: state.currentStore,
         deviceId: state.deviceId,
         isAuthenticated: Boolean(state.isAuthenticated && state.currentUser && state.currentTenant && state.currentStore),
-        isPinLocked: state.isPinLocked
+        isPinLocked: Boolean(state.isPinLocked && state.currentUser?.pin_hash)
       })
     }
   )
