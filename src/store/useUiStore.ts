@@ -23,7 +23,7 @@ export const useUiStore = create<UiState>((set) => ({
   isSyncing: false,
   pendingSyncCount: 0,
   lastSyncAt: null,
-  sidebarOpen: true,
+  sidebarOpen: false,
   theme: 'dark',
 
   setOnlineStatus: (status) => set({ isOnline: status }),
