@@ -38,7 +38,7 @@ export async function getPendingSyncCount(tenantId: string, storeId: string): Pr
   return await db.sync_events
     .where('[tenant_id+store_id]')
     .equals([tenantId, storeId])
-    .and((e) => e.sync_status === 'pending')
+    .and((e) => e.sync_status !== 'synced')
     .count();
 }
 
