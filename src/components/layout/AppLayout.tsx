@@ -8,10 +8,21 @@ import { PinUnlockModal } from '../PinUnlockModal';
 import { useUiStore } from '../../store/useUiStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { getPendingSyncCount } from '../../lib/sync/outbox';
+import { syncEngine } from '../../lib/sync/syncEngine';
+import { DEMO_TENANT_ID } from '../../lib/db/seed';
 
 export const AppLayout: React.FC = () => {
   const { setOnlineStatus, setPendingSyncCount } = useUiStore();
   const { currentTenant, currentStore } = useAuthStore();
+
+  useEffect(() => {
+    if (!currentTenant || !currentStore || currentTenant.id === DEMO_TENANT_ID) return;
+    const run = () => { void syncEngine.syncBatch(currentTenant.id, currentStore.id); };
+    run();
+    syncEngine.start(currentTenant.id, currentStore.id);
+    window.addEventListener('online', run);
+    return () => { syncEngine.stop(); window.removeEventListener('online', run); };
+  }, [currentTenant?.id, currentStore?.id]);
 
   useEffect(() => {
     const handleOnline = () => setOnlineStatus(true);
