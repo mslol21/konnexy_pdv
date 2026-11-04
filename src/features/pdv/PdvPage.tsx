@@ -213,28 +213,25 @@ export const PdvPage: React.FC = () => {
   }, [products, selectedCategory]);
 
   return (
-    <div className="h-[calc(100vh-8.5rem)] flex flex-col lg:flex-row gap-4 max-w-7xl mx-auto overflow-hidden">
-      {!activeSession && (
-        <div className="absolute inset-x-4 top-24 z-30 bg-rose-950/90 border border-rose-600 rounded-xl p-4 flex items-center justify-between shadow-2xl backdrop-blur-md">
-          <div className="flex items-center gap-3">
-            <AlertTriangle className="w-6 h-6 text-rose-400 shrink-0" />
-            <div>
-              <p className="font-bold text-white text-sm">Caixa Fechado</p>
-              <p className="text-xs text-rose-200">
-                É necessário abrir a sessão de caixa com fundo de troco para realizar vendas no terminal.
-              </p>
+    <div className="flex min-h-[calc(100dvh-12rem)] flex-col gap-4 lg:h-[calc(100dvh-12rem)] lg:min-h-[420px] lg:flex-row max-w-7xl mx-auto lg:overflow-hidden">
+      {/* Lado Esquerdo: Catálogo & Pesquisa Rápida */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-[320px] bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden p-4">
+        {!activeSession && !loading && (
+          <div role="status" className="mb-4 shrink-0 rounded-xl border border-rose-600/70 bg-rose-950/80 p-3 sm:p-4 shadow-sm">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex min-w-0 items-start gap-3">
+                <AlertTriangle aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-rose-300" />
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-white">Caixa fechado</p>
+                  <p className="mt-1 text-xs leading-relaxed text-rose-100">Abra o caixa com o fundo de troco para começar a vender.</p>
+                </div>
+              </div>
+              <Link to="/app/cash" className="inline-flex shrink-0 items-center justify-center rounded-lg bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-300">
+                Abrir caixa agora
+              </Link>
             </div>
           </div>
-          <Link to="/app/cash">
-            <Button variant="danger" size="sm">
-              Abrir Caixa Agora
-            </Button>
-          </Link>
-        </div>
-      )}
-
-      {/* Lado Esquerdo: Catálogo & Pesquisa Rápida */}
-      <div className="flex-1 flex flex-col min-w-0 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden p-4">
+        )}
         <div className="flex items-center gap-3 mb-4">
           <div className="relative flex-1">
             <Search className="w-5 h-5 text-slate-400 absolute left-3.5 top-3 pointer-events-none" />
