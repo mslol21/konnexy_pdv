@@ -213,9 +213,9 @@ export const PdvPage: React.FC = () => {
   }, [products, selectedCategory]);
 
   return (
-    <div className="flex min-h-[calc(100dvh-12rem)] flex-col gap-4 lg:h-[calc(100dvh-12rem)] lg:min-h-[420px] lg:flex-row max-w-7xl mx-auto lg:overflow-hidden">
+    <div className="flex w-full min-w-0 flex-col gap-4 lg:h-[calc(100dvh-12rem)] lg:min-h-[420px] lg:flex-row lg:overflow-hidden max-w-7xl mx-auto">
       {/* Lado Esquerdo: Catálogo & Pesquisa Rápida */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-[320px] bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden p-4">
+      <div className="flex flex-col min-w-0 min-h-0 shrink-0 lg:shrink lg:flex-1 lg:min-h-0 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden p-4">
         {!activeSession && !loading && (
           <div role="status" className="mb-4 shrink-0 rounded-xl border border-rose-600/70 bg-rose-950/80 p-3 sm:p-4 shadow-sm">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -278,7 +278,7 @@ export const PdvPage: React.FC = () => {
           ))}
         </div>
 
-        <div className="flex-1 overflow-y-auto pr-1">
+        <div className="max-h-[min(35dvh,260px)] overflow-y-auto pr-1 lg:max-h-none lg:flex-1">
           {loading ? (
             <div className="flex items-center justify-center h-48 text-slate-400 text-sm">
               Carregando catálogo...
@@ -335,7 +335,7 @@ export const PdvPage: React.FC = () => {
       </div>
 
       {/* Lado Direito: Carrinho de Compras & Checkout */}
-      <div className="w-full lg:w-96 bg-slate-900 border border-slate-800 rounded-2xl flex flex-col overflow-hidden shrink-0">
+      <div className="w-full lg:w-96 min-w-0 bg-slate-900 border border-slate-800 rounded-2xl flex flex-col overflow-hidden shrink-0">
         <div className="p-4 bg-slate-850 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ShoppingCart className="w-5 h-5 text-emerald-400" />
