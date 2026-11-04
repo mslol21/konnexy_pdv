@@ -10,7 +10,7 @@ import { getPendingSyncCount } from '../../lib/sync/outbox';
 
 export const Header: React.FC = () => {
   const { currentUser, currentStore, currentTenant, lockSession } = useAuthStore();
-  const { isSyncing, syncError, isOnline, setPendingSyncCount } = useUiStore();
+  const { isSyncing, isOnline, setPendingSyncCount } = useUiStore();
   const [syncMessage, setSyncMessage] = useState('');
   const isDemo = currentTenant?.id === DEMO_TENANT_ID;
 
@@ -82,7 +82,7 @@ export const Header: React.FC = () => {
 
         <StatusIndicator />
         {!isDemo && <button type="button" onClick={() => void handleManualSync()} disabled={isSyncing} className="flex min-h-[44px] items-center gap-1.5 rounded-lg border border-emerald-500/50 bg-emerald-600/20 px-2.5 py-1.5 text-xs font-semibold text-emerald-200 disabled:opacity-50 sm:px-3" title="Enviar eventos locais para backup no Supabase (não atualiza automaticamente as tabelas operacionais)" aria-label="Sincronizar eventos com Supabase"><RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} /><span className="hidden sm:inline">Enviar ao Supabase</span><span className="sm:hidden">Enviar</span></button>}
-        {(syncMessage || syncError) && !isDemo && <div role="status" aria-live="polite" className="absolute right-2 top-16 z-50 max-w-sm rounded-lg border border-slate-600 bg-slate-950 p-3 text-xs text-slate-100 shadow-xl"><p>{syncMessage || syncError}</p><button type="button" className="mt-2 text-emerald-300 underline" onClick={() => setSyncMessage('')}>Fechar</button></div>}
+        {syncMessage && !isDemo && <div role="status" aria-live="polite" className="absolute right-2 top-16 z-50 max-w-sm rounded-lg border border-slate-600 bg-slate-950 p-3 text-xs text-slate-100 shadow-xl"><p>{syncMessage}</p><button type="button" className="mt-2 text-emerald-300 underline" onClick={() => setSyncMessage('')}>Fechar</button></div>}
 
         <button
           onClick={toggleTheme}
