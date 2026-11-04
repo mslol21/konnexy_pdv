@@ -15,12 +15,10 @@ export class SyncEngine {
   private isRunning = false;
   private batchSize: number;
   private intervalMs: number;
-  private maxRetries: number;
 
   constructor(config: SyncEngineConfig = {}) {
     this.batchSize = config.batchSize || 20;
     this.intervalMs = config.intervalMs || 60000;
-    this.maxRetries = config.maxRetries || 5;
   }
 
   /**
