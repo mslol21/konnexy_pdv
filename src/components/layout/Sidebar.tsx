@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   ShoppingCart, 
@@ -39,11 +39,20 @@ export const Sidebar: React.FC = () => {
   const { sidebarOpen, setSidebarOpen } = useUiStore();
   const { logout } = useAuthStore();
 
+  useEffect(() => {
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSidebarOpen(false);
+    };
+    window.addEventListener('keydown', onEscape);
+    return () => window.removeEventListener('keydown', onEscape);
+  }, [setSidebarOpen]);
+
   return (
     <>
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
+          aria-label="Fechar menu lateral"
           className="fixed inset-0 bg-slate-950/70 z-30 lg:hidden backdrop-blur-xs transition-opacity"
         />
       )}
@@ -62,6 +71,7 @@ export const Sidebar: React.FC = () => {
                 <NavLink
                   key={item.path}
                   to={item.path}
+                  onClick={() => { if (window.innerWidth < 1024) setSidebarOpen(false); }}
                   className={({ isActive }) =>
                     cn(
                       'flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all group min-h-[44px]',
