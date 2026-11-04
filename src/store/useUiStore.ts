@@ -3,6 +3,7 @@ import { create } from 'zustand';
 interface UiState {
   isOnline: boolean;
   isSyncing: boolean;
+  syncError: string | null;
   pendingSyncCount: number;
   lastSyncAt: string | null;
   sidebarOpen: boolean;
@@ -11,6 +12,7 @@ interface UiState {
   // Ações
   setOnlineStatus: (status: boolean) => void;
   setSyncing: (syncing: boolean) => void;
+  setSyncError: (message: string | null) => void;
   setPendingSyncCount: (count: number) => void;
   setLastSyncAt: (timestamp: string) => void;
   toggleSidebar: () => void;
@@ -21,6 +23,7 @@ interface UiState {
 export const useUiStore = create<UiState>((set) => ({
   isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
   isSyncing: false,
+  syncError: null,
   pendingSyncCount: 0,
   lastSyncAt: null,
   sidebarOpen: false,
@@ -28,6 +31,7 @@ export const useUiStore = create<UiState>((set) => ({
 
   setOnlineStatus: (status) => set({ isOnline: status }),
   setSyncing: (syncing) => set({ isSyncing: syncing }),
+  setSyncError: (message) => set({ syncError: message }),
   setPendingSyncCount: (count) => set({ pendingSyncCount: count }),
   setLastSyncAt: (timestamp) => set({ lastSyncAt: timestamp }),
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
