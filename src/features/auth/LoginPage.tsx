@@ -119,9 +119,10 @@ export const LoginPage: React.FC = () => {
               <input type="password" autoComplete="current-password" required value={password} onChange={e => setPassword(e.target.value)} className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white" placeholder="Sua senha" />
               {loginError && <p role="alert" className="rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-300">{loginError}</p>}
               <button type="submit" disabled={signingIn} className="w-full rounded-lg bg-emerald-600 px-4 py-3 font-bold text-white disabled:opacity-50">{signingIn ? 'Entrando...' : 'Entrar na minha empresa'}</button>
-              <p className="text-xs text-slate-400">Acesso exclusivo para contas autorizadas e vinculadas a uma empresa.</p>
+              <p className="text-xs text-slate-400">Acesso exclusivo para contas autorizadas e vinculadas a uma empresa. Se você foi cadastrado no painel master, use o e-mail e a senha provisória fornecidos.</p>
             </form>
           ) : (<div className="space-y-6">
+          <p className="rounded-lg border border-sky-800 bg-sky-950/60 p-3 text-xs text-sky-200">Ambiente de testes. Operações feitas aqui não abastecem o Supabase e não são transferidas automaticamente para contas empresariais.</p>
           <div className="border-b border-slate-800 pb-4">
             <div className="flex items-center gap-2 text-slate-300 text-sm">
               <Store className="w-4 h-4 text-emerald-400" />
