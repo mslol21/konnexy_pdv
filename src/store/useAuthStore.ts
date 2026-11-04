@@ -7,6 +7,7 @@ import { DEMO_TENANT_ID } from '../lib/db/seed';
 import { getOrCreateDeviceId } from '../lib/utils/id';
 
 interface AuthState {
+  hasHydrated: boolean;
   currentUser: UserRole | null;
   currentTenant: Tenant | null;
   currentStore: Store | null;
@@ -17,6 +18,7 @@ interface AuthState {
   pinBlockedUntil: number;
   
   // Ações
+  setHasHydrated: (val: boolean) => void;
   setSession: (user: UserRole, tenant: Tenant, store: Store) => void;
   unlockWithPin: (pin: string) => Promise<boolean>;
   lockSession: () => void;
@@ -27,14 +29,17 @@ interface AuthState {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
+      hasHydrated: false,
       currentUser: null,
       currentTenant: null,
       currentStore: null,
       deviceId: getOrCreateDeviceId(),
       isAuthenticated: false,
-      isPinLocked: true,
+      isPinLocked: false,
       pinFailures: 0,
       pinBlockedUntil: 0,
+
+      setHasHydrated: (val: boolean) => set({ hasHydrated: val }),
 
       setSession: (user, tenant, store) => {
         set({
@@ -56,7 +61,10 @@ export const useAuthStore = create<AuthState>()(
         const candidates = await db.user_roles.where('tenant_id').equals(currentTenant.id).and(u => u.is_active).toArray();
         let user = null;
         for (const candidate of candidates) {
-          if ((currentTenant.id === DEMO_TENANT_ID && candidate.pin_hash === pin) || await verifyOperatorPin(pin, candidate.pin_hash)) { user = candidate; break; }
+          if ((currentTenant.id === DEMO_TENANT_ID && candidate.pin_hash === pin) || await verifyOperatorPin(pin, candidate.pin_hash)) {
+            user = candidate;
+            break;
+          }
         }
 
         if (user) {
@@ -79,6 +87,11 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
+        try {
+          sessionStorage.removeItem('konnexy_access_token');
+        } catch {
+          // ignore
+        }
         set({
           currentUser: null,
           currentTenant: null,
@@ -94,12 +107,15 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'konnexy_auth_storage',
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
       partialize: (state) => ({
         currentUser: state.currentUser,
         currentTenant: state.currentTenant,
         currentStore: state.currentStore,
         deviceId: state.deviceId,
-        isAuthenticated: state.isAuthenticated && state.currentTenant?.id === DEMO_TENANT_ID,
+        isAuthenticated: Boolean(state.isAuthenticated && state.currentUser && state.currentTenant && state.currentStore),
         isPinLocked: state.isPinLocked
       })
     }

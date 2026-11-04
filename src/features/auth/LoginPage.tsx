@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { signInRealAccount } from './realAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Store, ArrowRight, ShieldCheck, RefreshCw } from 'lucide-react';
 import { db } from '../../lib/db';
 import { seedDemoData, isDatabaseInitialized, DEMO_TENANT_ID } from '../../lib/db/seed';
@@ -9,7 +9,8 @@ import type { UserRole, Tenant, Store as StoreType } from '../../types/database'
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { setSession } = useAuthStore();
+  const location = useLocation();
+  const { setSession, isAuthenticated, hasHydrated } = useAuthStore();
   const [users, setUsers] = useState<UserRole[]>([]);
   const [loginMode, setLoginMode] = useState<'real' | 'demo'>('real');
   const [email, setEmail] = useState('');
@@ -20,6 +21,14 @@ export const LoginPage: React.FC = () => {
   const [store, setStore] = useState<StoreType | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<UserRole | null>(null);
+
+  // Se já estiver autenticado e hidratado, redireciona para a aplicação
+  useEffect(() => {
+    if (hasHydrated && isAuthenticated) {
+      const destination = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/app';
+      navigate(destination, { replace: true });
+    }
+  }, [hasHydrated, isAuthenticated, navigate, location.state]);
 
   useEffect(() => {
     async function init() {
@@ -52,7 +61,8 @@ export const LoginPage: React.FC = () => {
   const handleLogin = (userToLogin: UserRole) => {
     if (!tenant || !store) return;
     setSession(userToLogin, tenant, store);
-    navigate('/app');
+    const destination = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/app';
+    navigate(destination, { replace: true });
   };
 
   const handleRealLogin = async (event: React.FormEvent) => {
@@ -62,7 +72,8 @@ export const LoginPage: React.FC = () => {
     try {
       const result = await signInRealAccount(email, password);
       setSession(result.user, result.tenant, result.store);
-      navigate('/app');
+      const destination = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/app';
+      navigate(destination, { replace: true });
     } catch (error) {
       setLoginError(error instanceof Error ? error.message : 'Falha ao entrar.');
     } finally {
