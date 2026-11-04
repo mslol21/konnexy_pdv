@@ -19,7 +19,7 @@ export class SyncEngine {
 
   constructor(config: SyncEngineConfig = {}) {
     this.batchSize = config.batchSize || 20;
-    this.intervalMs = config.intervalMs || 15000;
+    this.intervalMs = config.intervalMs || 60000;
     this.maxRetries = config.maxRetries || 5;
   }
 
@@ -62,11 +62,11 @@ export class SyncEngine {
     uiStore.setSyncing(true);
 
     try {
-      // 1. Obtém eventos pendentes ou que falharam com retry < maxRetries
+      // 1. Recupera todos os eventos sem confirmação, inclusive falhas antigas (sem perda de dados)
       const pendingEvents = await db.sync_events
         .where('[tenant_id+store_id]')
         .equals([tenantId, storeId])
-        .and((e) => e.sync_status === 'pending' || (e.sync_status === 'failed' && e.retry_count < this.maxRetries))
+        .and((e) => e.sync_status !== 'synced')
         .limit(this.batchSize)
         .toArray();
 
